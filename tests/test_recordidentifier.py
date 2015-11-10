@@ -22,47 +22,34 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""Pidstore config."""
+"""Record identifier model tests."""
 
 from __future__ import absolute_import, print_function
 
-import pkg_resources
+from invenio_db import db
 
-PIDSTORE_PROVIDERS = [
-    'invenio_pidstore.providers.recordid:RecordID',
-    'invenio_pidstore.providers.local_doi:LocalDOI',
-]
+from invenio_pidstore.models import RecordIdentifier
 
-EXTRA_PIDSTORE_PROVIDERS = [
-    ('datacite', 'invenio_pidstore.providers.datacite:DataCite', ),
-]
 
-for dependency, provider in EXTRA_PIDSTORE_PROVIDERS:
-    try:
-        pkg_resources.get_distribution(dependency)
-    except pkg_resources.DistributionNotFound:
-        import warnings
-        warnings.warn("Dependency {0} is required for provider {1}".format(
-            dependency, provider.split(":")[-1]), ImportWarning)
-    else:
-        PIDSTORE_PROVIDERS.append(provider)
+def test_record_identifier(app):
+    """Test base provider."""
+    with app.app_context():
+        assert RecordIdentifier.next() == 1
+        assert RecordIdentifier.next() == 2
+        assert RecordIdentifier.max() == 2
 
-PIDSTORE_OBJECT_TYPES = ['rec', ]
-"""
-Definition of supported object types
-"""
+        # Mess up the sequence
+        with db.session.begin_nested():
+            obj = RecordIdentifier(recid=3)
+            db.session.add(obj)
 
-PIDSTORE_DATACITE_OUTPUTFORMAT = 'dcite'
-"""
-Output format used to generate the DataCite
-"""
+        assert RecordIdentifier.max() == 3
 
-PIDSTORE_DATACITE_RECORD_DOI_FIELD = 'doi'
-"""
-Field name in record model (JSONAlchemy)
-"""
+        # This tests a particular problem on PostgreSQL which is using
+        # sequences to generate auto incrementing columns and doesn't deal
+        # nicely with having values inserted in the table.
+        assert RecordIdentifier.next() == 4
 
-PIDSTORE_DATACITE_SITE_URL = None
-"""
-Site URL to use when minting records.
-"""
+        RecordIdentifier.insert(10)
+        assert RecordIdentifier.next() == 11
+        assert RecordIdentifier.max() == 11

@@ -36,23 +36,24 @@ services:
   - postgresql
 
 env:
-  - REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
-  - REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/travis"
-  - REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/travis"
-  - REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
-  - REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/travis"
+#  - REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
+#  - REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/travis"
+#  - REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/travis"
+#  - REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
+#  - REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/travis"
   - REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/travis"
-  - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
-  - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/travis"
-  - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/travis"
+#  - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
+#  - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/travis"
+#  - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/travis"
 
 python:
-  - "2.7"
-  - "3.3"
+#  - "2.7"
+#  - "3.3"
   - "3.4"
-  - "3.5"
+#  - "3.5"
 
 before_install:
+  - "psql --version"
   - "travis_retry pip install --upgrade pip setuptools py"
   - "travis_retry pip install twine wheel coveralls requirements-builder"
   - "requirements-builder --level=min setup.py > .travis-lowest-requirements.txt"

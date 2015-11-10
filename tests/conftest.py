@@ -22,7 +22,6 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-
 """Pytest configuration."""
 
 from __future__ import absolute_import, print_function
@@ -52,13 +51,11 @@ def app(request):
     InvenioDB(app)
     InvenioPIDStore(app)
 
-    app.config['PIDSTORE_PROVIDERS'] = app.config['PIDSTORE_PROVIDERS'] + \
-        ['tests.mock_providers.mock_datacite:MockDataCite', ]
-
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-        'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'
+    app.config.update(
+        SQLALCHEMY_DATABASE_URI=os.environ.get(
+            'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'),
+        TESTING=True,
     )
-    app.config.update(TESTING=True)
 
     runner = CliRunner()
     script_info = ScriptInfo(create_app=lambda info: app)
@@ -67,8 +64,8 @@ def app(request):
     runner.invoke(db_cmd, ['create'], obj=script_info)
 
     def teardown():
-        shutil.rmtree(instance_path)
         runner.invoke(db_cmd, ['destroy', '--yes-i-know'], obj=script_info)
+        shutil.rmtree(instance_path)
 
     request.addfinalizer(teardown)
 
